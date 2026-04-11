@@ -14,6 +14,17 @@ APP_NAME = "ChessHelper"
 UI_FONT_FILE = "Righteous-Regular.ttf"
 
 
+def configure_console_output() -> None:
+    for stream_name in ("stdout", "stderr"):
+        stream = getattr(sys, stream_name, None)
+        if stream is None:
+            continue
+        try:
+            stream.reconfigure(encoding="utf-8", errors="replace")
+        except Exception:
+            pass
+
+
 def run(cmd: list[str], *, cwd: Path) -> None:
     print(f"$ {' '.join(cmd)}")
     subprocess.run(cmd, cwd=cwd, check=True)
@@ -213,6 +224,7 @@ def parse_args() -> argparse.Namespace:
 
 
 def main() -> None:
+    configure_console_output()
     args = parse_args()
     root = Path(__file__).resolve().parent
     dist_dir = root / "dist"
