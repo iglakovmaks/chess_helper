@@ -1,0 +1,81 @@
+name: Build Windows Release
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install dependencies
+        shell: pwsh
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt -r requirements-build.txt
+
+      - name: Download Stockfish
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+
+          $apiUrl = "https://api.github.com/repos/official-stockfish/Stockfish/releases/latest"
+          $headers = @{ "User-Agent" = "ChessHelper-Windows-Build" }
+          $release = Invoke-RestMethod -Uri $apiUrl -Headers $headers
+
+          $patterns = @(
+            "windows.*x86-64.*avx2.*\.zip$",
+            "windows.*x86-64.*bmi2.*\.zip$",
+            "windows.*x86-64.*\.zip$",
+            "windows.*\.zip$"
+          )
+
+          $asset = $null
+          foreach ($pattern in $patterns) {
+            $asset = $release.assets | Where-Object { $_.name -match $pattern } | Select-Object -First 1
+            if ($asset) { break }
+          }
+
+          if (-not $asset) {
+            throw "Windows build of Stockfish not found in latest release"
+          }
+
+          Write-Host "Using Stockfish asset: $($asset.name)"
+          Invoke-WebRequest -Uri $asset.browser_download_url -OutFile stockfish.zip
+          Expand-Archive -Path stockfish.zip -DestinationPath stockfish -Force
+
+          $engine = Get-ChildItem -Path stockfish -Recurse -File -Filter "*.exe" |
+            Where-Object { $_.Name -match "^stockfish.*\.exe$" } |
+            Sort-Object Length -Descending |
+            Select-Object -First 1
+
+          if (-not $engine) {
+            throw "stockfish.exe not found after extract"
+          }
+
+          "STOCKFISH_PATH=$($engine.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+      - name: Build app
+        shell: pwsh
+        run: |
+          python build_app.py --stockfish "$env:STOCKFISH_PATH"
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ChessHelper-windows
+          path: |
+            release/*.zip
+            dist/ChessHelper/**
+          if-no-files-found: error
