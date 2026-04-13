@@ -32,8 +32,7 @@ function Get-LatestStockfishExe {
   $release = Invoke-RestMethod -Uri $apiUrl -Headers $headers
 
   $patterns = @(
-    "windows.*x86-64.*avx2.*\.zip$",
-    "windows.*x86-64.*bmi2.*\.zip$",
+    "windows.*x86-64(?!.*avx2)(?!.*bmi2).*\.zip$",
     "windows.*x86-64.*\.zip$",
     "windows.*\.zip$"
   )
