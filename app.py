@@ -1020,13 +1020,12 @@ class ChessHelperApp:
                 engine = self.engine
                 if engine is None:
                     raise RuntimeError("Движок недоступен.")
-
-                infos = engine.analyse(
-                    board_snapshot,
-                    self.analysis_limit,
-                    multipv=1,
-                    info=chess.engine.INFO_SCORE | chess.engine.INFO_PV,
-                )
+                result = engine.play(board_snapshot, self.analysis_limit)
+            move = result.move
+            if move is None:
+                raise RuntimeError("Не удалось получить вариант.")
+            line = self._format_move_hint(board_snapshot, move)
+            move_uci = move.uci()
         except Exception as exc:
             self.root.after(
                 0,
@@ -1034,21 +1033,7 @@ class ChessHelperApp:
             )
             return
 
-        entry = infos[0] if isinstance(infos, list) else infos
-        pv = entry.get("pv")
-        if not pv:
-            self.root.after(
-                0,
-                lambda: self._apply_analysis(request_id, request_fen, None, None, "Не удалось получить вариант."),
-            )
-            return
-
-        move = pv[0]
-        line = self._format_move_hint(board_snapshot, move)
-        self.root.after(
-            0,
-            lambda: self._apply_analysis(request_id, request_fen, line, move.uci(), None),
-        )
+        self.root.after(0, lambda: self._apply_analysis(request_id, request_fen, line, move_uci, None))
 
     def _apply_analysis(
         self,
