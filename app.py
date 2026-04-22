@@ -4,6 +4,7 @@ import ctypes
 import os
 import re
 import shutil
+import subprocess
 import sys
 import threading
 import tkinter as tk
@@ -732,10 +733,24 @@ class ChessHelperApp:
         worker = threading.Thread(target=self._load_engine_worker, daemon=True)
         worker.start()
 
+    def _engine_popen_args(self) -> dict[str, object]:
+        if not sys.platform.startswith("win"):
+            return {}
+
+        creationflags = getattr(subprocess, "CREATE_NO_WINDOW", 0)
+        startupinfo = subprocess.STARTUPINFO()
+        startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+        startupinfo.wShowWindow = 0  # SW_HIDE
+        return {
+            "creationflags": creationflags,
+            "startupinfo": startupinfo,
+        }
+
     def _load_engine_worker(self) -> None:
         try:
             engine_path = self._resolve_engine_path()
-            engine = chess.engine.SimpleEngine.popen_uci(engine_path)
+            popen_args = self._engine_popen_args()
+            engine = chess.engine.SimpleEngine.popen_uci(engine_path, **popen_args)
             self._configure_engine(engine)
         except Exception:
             self.root.after(0, lambda: self.engine_status_var.set("Не удалось запустить движок"))
