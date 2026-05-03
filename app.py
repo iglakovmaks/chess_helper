@@ -441,12 +441,19 @@ class ChessHelperApp:
         self.last_move: Optional[chess.Move] = None
         self.selected_square: Optional[chess.Square] = None
         self.my_color = chess.WHITE
+        self.drag_square: Optional[chess.Square] = None
+        self.drag_piece: Optional[chess.Piece] = None
+        self.drag_pointer: Optional[tuple[int, int]] = None
+        self.drag_start_point: Optional[tuple[int, int]] = None
+        self.drag_active = False
+        self.drag_threshold = 10
+        self.is_windows = sys.platform.startswith("win")
 
         self.square_size = 68
         self.margin = 24
         self.board_px = self.square_size * 8
         self.canvas_px = self.board_px + self.margin * 2
-        self.sidebar_width = 360
+        self.sidebar_width = 400 if self.is_windows else 360
         self.piece_font_size = int(self.square_size * 0.66)
 
         self.play_black_var = tk.BooleanVar(value=False)
@@ -464,6 +471,8 @@ class ChessHelperApp:
         window_height = self.canvas_px + 36
         self.root.geometry(f"{window_width}x{window_height}")
         self.root.minsize(window_width, window_height)
+        self.root.maxsize(window_width, window_height)
+        self.root.resizable(False, False)
 
         self._configure_theme()
         self._build_ui()
@@ -583,7 +592,9 @@ class ChessHelperApp:
             bd=0,
         )
         self.canvas.pack()
-        self.canvas.bind("<Button-1>", self._on_canvas_click)
+        self.canvas.bind("<ButtonPress-1>", self._on_canvas_press)
+        self.canvas.bind("<B1-Motion>", self._on_canvas_drag)
+        self.canvas.bind("<ButtonRelease-1>", self._on_canvas_release)
 
         side_panel = ttk.Frame(layout, style="Panel.TFrame", padding=14)
         side_panel.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(12, 0))
@@ -803,13 +814,7 @@ class ChessHelperApp:
         self._refresh_moves_text()
         self._refresh_hint_for_turn()
 
-    def _on_canvas_click(self, event: tk.Event) -> None:
-        col = (event.x - self.margin) // self.square_size
-        row = (event.y - self.margin) // self.square_size
-        if not (0 <= col < 8 and 0 <= row < 8):
-            return
-
-        square = self._grid_to_square(col, row)
+    def _handle_square_click(self, square: chess.Square) -> None:
         piece = self.board.piece_at(square)
 
         if self.selected_square is None:
@@ -833,6 +838,73 @@ class ChessHelperApp:
             return
 
         self._attempt_move(self.selected_square, square)
+
+    def _on_canvas_press(self, event: tk.Event) -> None:
+        self.canvas.focus_set()
+        square = self._coords_to_square(event.x, event.y)
+        self.drag_start_point = (event.x, event.y)
+        self.drag_pointer = (event.x, event.y)
+        self.drag_active = False
+
+        if square is None:
+            self.drag_square = None
+            self.drag_piece = None
+            return
+
+        piece = self.board.piece_at(square)
+        if piece is None or piece.color != self.board.turn:
+            self.drag_square = None
+            self.drag_piece = None
+            return
+
+        self.drag_square = square
+        self.drag_piece = piece
+
+    def _on_canvas_drag(self, event: tk.Event) -> None:
+        if self.drag_square is None or self.drag_piece is None or self.drag_start_point is None:
+            return
+
+        self.drag_pointer = (event.x, event.y)
+        start_x, start_y = self.drag_start_point
+        if not self.drag_active:
+            if abs(event.x - start_x) < self.drag_threshold and abs(event.y - start_y) < self.drag_threshold:
+                return
+            self.drag_active = True
+            self.selected_square = self.drag_square
+
+        self._draw_board()
+
+    def _on_canvas_release(self, event: tk.Event) -> None:
+        square = self._coords_to_square(event.x, event.y)
+        drag_square = self.drag_square
+        drag_active = self.drag_active
+
+        self.drag_square = None
+        self.drag_piece = None
+        self.drag_pointer = None
+        self.drag_start_point = None
+        self.drag_active = False
+
+        if drag_square is None:
+            if square is not None:
+                self._handle_square_click(square)
+            return
+
+        if not drag_active:
+            if square is None:
+                return
+            if square != drag_square:
+                self._attempt_move(drag_square, square)
+                return
+            self._handle_square_click(square)
+            return
+
+        if square is None or square == drag_square:
+            self.selected_square = drag_square
+            self._draw_board()
+            return
+
+        self._attempt_move(drag_square, square)
 
     def _attempt_move(self, from_square: chess.Square, to_square: chess.Square) -> None:
         candidates = [
@@ -1156,11 +1228,39 @@ class ChessHelperApp:
             rank_idx = row
         return chess.square(file_idx, rank_idx)
 
+    def _coords_to_square(self, x: int, y: int) -> Optional[chess.Square]:
+        col = (x - self.margin) // self.square_size
+        row = (y - self.margin) // self.square_size
+        if not (0 <= col < 8 and 0 <= row < 8):
+            return None
+        return self._grid_to_square(col, row)
+
     def _draw_piece(self, square_x1: float, square_y1: float, square_x2: float, square_y2: float, piece: chess.Piece) -> None:
         piece_symbol = PIECE_TO_UNICODE[piece.symbol()]
         self.canvas.create_text(
             (square_x1 + square_x2) / 2,
             (square_y1 + square_y2) / 2,
+            text=piece_symbol,
+            font=("DejaVu Sans", self.piece_font_size),
+            fill="#20232D",
+        )
+
+    def _draw_drag_piece(self) -> None:
+        if self.drag_piece is None or self.drag_pointer is None or not self.drag_active:
+            return
+
+        x, y = self.drag_pointer
+        piece_symbol = PIECE_TO_UNICODE[self.drag_piece.symbol()]
+        self.canvas.create_text(
+            x + 2,
+            y + 4,
+            text=piece_symbol,
+            font=("DejaVu Sans", self.piece_font_size),
+            fill="#7B808F",
+        )
+        self.canvas.create_text(
+            x,
+            y,
             text=piece_symbol,
             font=("DejaVu Sans", self.piece_font_size),
             fill="#20232D",
@@ -1260,6 +1360,8 @@ class ChessHelperApp:
                 self.canvas.create_rectangle(x1, y1, x2, y2, fill=fill_color, outline=fill_color)
 
                 piece = self.board.piece_at(square)
+                if self.drag_active and square == self.drag_square:
+                    piece = None
                 if piece:
                     self._draw_piece(x1, y1, x2, y2, piece)
 
@@ -1267,6 +1369,7 @@ class ChessHelperApp:
             self._draw_suggestion_arrow(self.suggested_move)
 
         self._draw_coords()
+        self._draw_drag_piece()
 
     def _draw_coords(self) -> None:
         for col in range(8):
