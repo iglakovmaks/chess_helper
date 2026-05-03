@@ -70,11 +70,22 @@ jobs:
         run: |
           python build_app.py --stockfish "$env:STOCKFISH_PATH"
 
+      - name: Install Inno Setup
+        shell: pwsh
+        run: |
+          choco install innosetup --no-progress -y
+
+      - name: Build installer (.exe)
+        shell: pwsh
+        run: |
+          & "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" "ChessHelperInstaller.iss"
+
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: ChessHelper-windows
           path: |
             release/*.zip
+            release/*.exe
             dist/ChessHelper/**
           if-no-files-found: error

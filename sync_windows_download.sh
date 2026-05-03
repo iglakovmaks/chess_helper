@@ -4,7 +4,7 @@ set -euo pipefail
 REPO="iglakovmaks/chess_helper_archive_20260413"
 WORKFLOW_NAME="Build Windows Release"
 ARTIFACT_NAME="ChessHelper-windows"
-TARGET="website/downloads/ChessHelper-windows-amd64.zip"
+TARGET_SETUP="website/downloads/ChessHelper-Setup.exe"
 
 if ! command -v gh >/dev/null 2>&1; then
   echo "gh CLI not found. Install GitHub CLI first." >&2
@@ -37,15 +37,15 @@ gh run download "${RUN_ID}" \
   -n "${ARTIFACT_NAME}" \
   -D "${TMP_DIR}"
 
-SRC=$(find "${TMP_DIR}" -type f -name "ChessHelper-windows-amd64.zip" | head -n 1)
-if [[ -z "${SRC}" ]]; then
-  echo "ChessHelper-windows-amd64.zip not found inside artifact" >&2
+SRC_SETUP=$(find "${TMP_DIR}" -type f -name "ChessHelper-Setup.exe" | head -n 1)
+if [[ -z "${SRC_SETUP}" ]]; then
+  echo "ChessHelper-Setup.exe not found inside artifact" >&2
   exit 1
 fi
 
-mkdir -p "$(dirname "${TARGET}")"
-cp -f "${SRC}" "${TARGET}"
+mkdir -p "$(dirname "${TARGET_SETUP}")"
+cp -f "${SRC_SETUP}" "${TARGET_SETUP}"
 
-echo "Updated: ${TARGET}"
-ls -lh "${TARGET}"
-shasum -a 256 "${TARGET}"
+echo "Updated: ${TARGET_SETUP}"
+ls -lh "${TARGET_SETUP}"
+shasum -a 256 "${TARGET_SETUP}"

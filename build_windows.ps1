@@ -126,4 +126,25 @@ if ($NoZip) {
 
 & $VenvPython @buildArgs
 
-Write-Host "Done. Check dist and release folders."
+function Get-IsccPath {
+  $path = Join-Path ${env:ProgramFiles(x86)} "Inno Setup 6\ISCC.exe"
+  if (Test-Path $path) {
+    return $path
+  }
+  return $null
+}
+
+$isccPath = Get-IsccPath
+if (-not $isccPath) {
+  Write-Host "Installing Inno Setup..."
+  choco install innosetup --no-progress -y | Out-Null
+  $isccPath = Get-IsccPath
+}
+
+if (-not $isccPath) {
+  throw "Inno Setup (ISCC.exe) not found"
+}
+
+& $isccPath "ChessHelperInstaller.iss"
+
+Write-Host "Done. Check dist and release folders (including ChessHelper-Setup.exe)."
