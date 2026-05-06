@@ -448,12 +448,14 @@ class ChessHelperApp:
         self.drag_active = False
         self.drag_threshold = 10
         self.is_windows = sys.platform.startswith("win")
+        self.title_font_size = 46 if self.is_windows else 50
 
         self.square_size = 68
         self.margin = 24
         self.board_px = self.square_size * 8
         self.canvas_px = self.board_px + self.margin * 2
-        self.sidebar_width = 400 if self.is_windows else 360
+        base_sidebar_width = 420 if self.is_windows else 360
+        self.sidebar_width = self._resolve_sidebar_width(base_sidebar_width)
         self.piece_font_size = int(self.square_size * 0.66)
 
         self.play_black_var = tk.BooleanVar(value=False)
@@ -524,6 +526,19 @@ class ChessHelperApp:
 
         return latin_family, cyrillic_family
 
+    def _resolve_sidebar_width(self, base_width: int) -> int:
+        if not self.is_windows:
+            return base_width
+
+        try:
+            title_font = tkfont.Font(root=self.root, font=self._latin_font(self.title_font_size, "bold"))
+            title_text_px = title_font.measure("Chess Helper")
+            # Учитываем внутренние отступы панели и небольшой запас, чтобы заголовок не обрезался на DPI 125%+.
+            needed_width = title_text_px + 46
+            return max(base_width, needed_width)
+        except Exception:
+            return base_width
+
     def _configure_theme(self) -> None:
         self.root.configure(bg=COLOR_MILK)
         style = ttk.Style(self.root)
@@ -537,7 +552,7 @@ class ChessHelperApp:
             "Title.TLabel",
             background=COLOR_PANEL,
             foreground=COLOR_NAVY,
-            font=self._latin_font(50, "bold"),
+            font=self._latin_font(self.title_font_size, "bold"),
         )
         style.configure(
             "App.TLabel",
