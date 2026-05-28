@@ -1,46 +1,35 @@
-```text
- ██████╗██╗  ██╗███████╗███████╗███████╗
-██╔════╝██║  ██║██╔════╝██╔════╝██╔════╝
-██║     ███████║█████╗  ███████╗███████╗
-██║     ██╔══██║██╔══╝  ╚════██║╚════██║
-╚██████╗██║  ██║███████╗███████║███████║
- ╚═════╝╚═╝  ╚═╝╚══════╝╚══════╝╚══════╝
+# Chess Helper
 
-██╗  ██╗███████╗██╗     ██████╗ ███████╗██████╗
-██║  ██║██╔════╝██║     ██╔══██╗██╔════╝██╔══██╗
-███████║█████╗  ██║     ██████╔╝█████╗  ██████╔╝
-██╔══██║██╔══╝  ██║     ██╔═══╝ ██╔══╝  ██╔══██╗
-██║  ██║███████╗███████╗██║     ███████╗██║  ██║
-╚═╝  ╚═╝╚══════╝╚══════╝╚═╝     ╚══════╝╚═╝  ╚═╝
-```
+Chess Helper — desktop-приложение с интерактивной шахматной доской и автоматическими подсказками лучшего хода от Stockfish.
 
-```text
-██╗ ██████╗ ██╗      █████╗ ██╗  ██╗ ██████╗ ██╗   ██╗
-██║██╔════╝ ██║     ██╔══██╗██║ ██╔╝██╔═══██╗██║   ██║
-██║██║  ███╗██║     ███████║█████╔╝ ██║   ██║██║   ██║
-██║██║   ██║██║     ██╔══██║██╔═██╗ ██║   ██║╚██╗ ██╔╝
-██║╚██████╔╝███████╗██║  ██║██║  ██╗╚██████╔╝ ╚████╔╝
-╚═╝ ╚═════╝ ╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝   ╚═══╝
+![Chess Helper](website/assets/icon.png)
 
-███╗   ███╗ █████╗ ██╗  ██╗███████╗██╗███╗   ███╗
-████╗ ████║██╔══██╗██║ ██╔╝██╔════╝██║████╗ ████║
-██╔████╔██║███████║█████╔╝ ███████╗██║██╔████╔██║
-██║╚██╔╝██║██╔══██║██╔═██╗ ╚════██║██║██║╚██╔╝██║
-██║ ╚═╝ ██║██║  ██║██║  ██╗███████║██║██║ ╚═╝ ██║
-╚═╝     ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝╚══════╝╚═╝╚═╝     ╚═╝
-```
+## Скачать
 
-Локальное приложение с интерактивной шахматной доской и подсказками от движка Stockfish.
+- Сайт проекта: **https://iglakovmaks.github.io/chess_helper_site/**
+- macOS: `ChessHelper.dmg`
+- Windows: `ChessHelper-Setup.exe`
 
-## Возможности
-- Ведение партии вручную на интерактивной доске (ходы обеих сторон).
-- Ваши фигуры всегда снизу, переключение стороны тумблером.
-- Автоматическая подсказка лучшего хода.
-- Формат подсказки в стиле: `Пешка на e4`.
-- Визуальная стрелка рекомендованного хода прямо на доске.
-- Кнопки: новая партия, отменить ход.
+## Что умеет приложение
 
-## Запуск в Python (для разработки)
+- Ручной ввод позиции на доске (клики и перетаскивание фигур).
+- Переключение стороны: играть за белых или чёрных.
+- Автоматическая подсказка лучшего хода для текущей позиции.
+- Визуальная стрелка рекомендованного хода на доске.
+- История ходов, `Новая партия`, `Отменить ход`.
+- Удобный pop-up для превращения пешки.
+- Оффлайн-анализ через локальный движок Stockfish.
+
+## Технологии
+
+- Python 3
+- Tkinter
+- python-chess
+- Stockfish (UCI)
+- PyInstaller
+
+## Запуск для разработки
+
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
@@ -48,85 +37,59 @@ pip install -r requirements.txt
 python app.py
 ```
 
-## Сборка полноценного приложения (без IDE/Python у пользователя)
-Важно: приложение собирается отдельно на каждой ОС.
-- Для Windows собирайте на Windows.
-- Для macOS собирайте на macOS.
-- Для Linux собирайте на Linux.
+## Сборка приложения
 
-### 1) Установить зависимости сборки
+Важно: сборку нужно делать на той же ОС, для которой вы собираете приложение.
+
 ```bash
 python -m pip install -r requirements.txt -r requirements-build.txt
-```
-
-### 2) Установить Stockfish
-#### macOS
-```bash
-brew install stockfish
-```
-
-#### Linux (пример)
-```bash
-sudo apt install stockfish
-```
-
-#### Windows
-Скачайте `stockfish.exe` и добавьте в `PATH`, либо передайте путь через `--stockfish`.
-
-### 3) Собрать приложение
-```bash
 python build_app.py
 ```
 
-Если в корне проекта лежит `icon.png`, он будет использован как иконка приложения автоматически.
+Опции:
 
-Опционально:
 ```bash
-python build_app.py --stockfish /полный/путь/к/stockfish
-python build_app.py --icon /полный/путь/к/icon.icns
+python build_app.py --stockfish /path/to/stockfish
+python build_app.py --icon /path/to/icon
 python build_app.py --no-zip
 ```
 
-Для Windows можно передавать `.ico`, либо оставить `icon.png` в корне (он конвертируется в `.ico` автоматически):
-```bash
-python build_app.py --icon C:\\path\\to\\icon.ico
-```
-
-### Быстрая сборка на Windows (автоматически)
-В проекте есть скрипт `build_windows.ps1`, который:
-- устанавливает зависимости сборки;
-- находит/скачивает `stockfish.exe`;
-- запускает `build_app.py` с нужными параметрами.
+### Windows (автоматизированная сборка)
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\build_windows.ps1
 ```
 
-Опционально:
-```powershell
-# указать свой stockfish.exe
-powershell -ExecutionPolicy Bypass -File .\build_windows.ps1 -StockfishPath C:\path\to\stockfish.exe
+Опции:
 
-# собрать без zip-архива
+```powershell
+powershell -ExecutionPolicy Bypass -File .\build_windows.ps1 -StockfishPath C:\path\to\stockfish.exe
 powershell -ExecutionPolicy Bypass -File .\build_windows.ps1 -NoZip
 ```
 
-Результат:
-- готовая сборка в `dist/`
-- архив для отправки друзьям в `release/`
+### Windows через GitHub Actions
 
-## Сборка Windows через GitHub Actions
-Добавлен workflow: `.github/workflows/build-windows.yml`
+В репозитории есть workflow: `.github/workflows/build-windows.yml`.
 
-Запуск:
-1. Откройте вкладку **Actions** в GitHub.
-2. Выберите workflow **Build Windows Release**.
-3. Нажмите **Run workflow**.
-4. После завершения скачайте артефакт `ChessHelper-windows`.
+- Запуск: **Actions → Build Windows Release → Run workflow**
+- Результат: артефакт `ChessHelper-windows`
 
-## Как запускать друзьям
-- Распаковать архив из `release/`.
-- Запустить `ChessHelper` (или `ChessHelper.exe` на Windows).
-- IDE и Python не нужны.
+## Структура репозитория
 
-Примечание: использовать подсказки движка в live-партиях онлайн обычно нарушает правила fair play.
+- `app.py` — основное приложение.
+- `build_app.py` — сборка через PyInstaller.
+- `build_windows.ps1` — локальная автоматическая сборка Windows.
+- `ChessHelperInstaller.iss` — Inno Setup-скрипт для `.exe`-инсталлятора.
+- `website/` — лендинг и стили сайта загрузки.
+
+## Примечание
+
+Сборочные артефакты (`dist/`, `build/`, `release/`, `website/downloads/`) исключены из репозитория и не публикуются в исходниках.
+
+## Автор
+
+- GitHub: https://github.com/iglakovmaks
+
+## License
+
+MIT License. См. `LICENSE`.

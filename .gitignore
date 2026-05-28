@@ -1,10 +1,23 @@
 # Python cache
 __pycache__/
 *.py[cod]
+*.pyo
+*.pyd
 
 # Virtual environments
 .venv/
 venv/
+
+# Local build/cache artifacts
+build/
+dist/
+release/
+.icon_build/
+.cache/
+website/downloads/
+ChessHelper.spec
+icon копия*.png
+icon_old.png
 
 # macOS
 .DS_Store
