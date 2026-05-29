@@ -1,10 +1,12 @@
 # Chess Helper
 
-Chess Helper — desktop-приложение с интерактивной шахматной доской и автоматическими подсказками лучшего хода от Stockfish.
+Chess Helper is a desktop app with an interactive chessboard and automatic best-move suggestions powered by Stockfish.
 
-## Скачать
+Russian version: [README_RU.md](README_RU.md)
 
-- Сайт проекта: **https://iglakovmaks.github.io/chess_helper_site/**
+## Download
+
+- Project website: **https://iglakovmaks.github.io/chess_helper_site/**
 - macOS: `ChessHelper.dmg`
 - Windows: `ChessHelper-Setup.exe`
 
@@ -12,17 +14,17 @@ Chess Helper — desktop-приложение с интерактивной ша
   <img src="photo.png" alt="Chess Helper preview" width="520">
 </p>
 
-## Что умеет приложение
+## Features
 
-- Ручной ввод позиции на доске (клики и перетаскивание фигур).
-- Переключение стороны: играть за белых или чёрных.
-- Автоматическая подсказка лучшего хода для текущей позиции.
-- Визуальная стрелка рекомендованного хода на доске.
-- История ходов, `Новая партия`, `Отменить ход`.
-- Удобный pop-up для превращения пешки.
-- Оффлайн-анализ через локальный движок Stockfish.
+- Manual position input on the board (clicks and drag-and-drop).
+- Side toggle: play as White or Black.
+- Automatic best-move suggestion for the current position.
+- Visual recommended-move arrow on the board.
+- Move history, `New Game`, `Undo Move`.
+- Pawn promotion pop-up with piece selection.
+- Offline analysis via local Stockfish engine.
 
-## Технологии
+## Tech Stack
 
 - Python 3
 - Tkinter
@@ -30,7 +32,7 @@ Chess Helper — desktop-приложение с интерактивной ша
 - Stockfish (UCI)
 - PyInstaller
 
-## Запуск для разработки
+## Development Run
 
 ```bash
 python3 -m venv .venv
@@ -39,16 +41,16 @@ pip install -r requirements.txt
 python app.py
 ```
 
-## Сборка приложения
+## Build Application
 
-Важно: сборку нужно делать на той же ОС, для которой вы собираете приложение.
+Important: build on the same OS you target for distribution.
 
 ```bash
 python -m pip install -r requirements.txt -r requirements-build.txt
 python build_app.py
 ```
 
-Опции:
+Options:
 
 ```bash
 python build_app.py --stockfish /path/to/stockfish
@@ -56,42 +58,42 @@ python build_app.py --icon /path/to/icon
 python build_app.py --no-zip
 ```
 
-### Windows (автоматизированная сборка)
+### Windows (Automated Local Build)
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\build_windows.ps1
 ```
 
-Опции:
+Options:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\build_windows.ps1 -StockfishPath C:\path\to\stockfish.exe
 powershell -ExecutionPolicy Bypass -File .\build_windows.ps1 -NoZip
 ```
 
-### Windows через GitHub Actions
+### Windows via GitHub Actions
 
-В репозитории есть workflow: `.github/workflows/build-windows.yml`.
+This repository includes workflow: `.github/workflows/build-windows.yml`.
 
-- Запуск: **Actions → Build Windows Release → Run workflow**
-- Результат: артефакт `ChessHelper-windows`
+- Run: **Actions -> Build Windows Release -> Run workflow**
+- Result: artifact `ChessHelper-windows`
 
-## Структура репозитория
+## Repository Structure
 
-- `app.py` — основное приложение.
-- `build_app.py` — сборка через PyInstaller.
-- `build_windows.ps1` — локальная автоматическая сборка Windows.
-- `ChessHelperInstaller.iss` — Inno Setup-скрипт для `.exe`-инсталлятора.
-- `website/` — лендинг и стили сайта загрузки.
+- `app.py` - main application.
+- `build_app.py` - PyInstaller build script.
+- `build_windows.ps1` - local automated Windows build.
+- `ChessHelperInstaller.iss` - Inno Setup script for `.exe` installer.
+- `website/` - landing page and download site styles.
 
-## Примечание
+## Note
 
-Сборочные артефакты (`dist/`, `build/`, `release/`, `website/downloads/`) исключены из репозитория и не публикуются в исходниках.
+Build artifacts (`dist/`, `build/`, `release/`, `website/downloads/`) are excluded from the repository and are not stored in source control.
 
-## Автор
+## Author
 
 - GitHub: https://github.com/iglakovmaks
 
 ## License
 
-MIT License. См. `LICENSE`.
+MIT License. See `LICENSE`.
