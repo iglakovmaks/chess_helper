@@ -2,13 +2,13 @@
 
 Chess Helper — desktop-приложение с интерактивной шахматной доской и автоматическими подсказками лучшего хода от Stockfish.
 
-![Chess Helper](website/assets/icon.png)
-
 ## Скачать
 
 - Сайт проекта: **https://iglakovmaks.github.io/chess_helper_site/**
 - macOS: `ChessHelper.dmg`
 - Windows: `ChessHelper-Setup.exe`
+
+<img src="photo.png" alt="Chess Helper preview" width="360">
 
 ## Что умеет приложение
 
