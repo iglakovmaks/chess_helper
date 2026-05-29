@@ -8,7 +8,9 @@ Chess Helper — desktop-приложение с интерактивной ша
 - macOS: `ChessHelper.dmg`
 - Windows: `ChessHelper-Setup.exe`
 
-<img src="photo.png" alt="Chess Helper preview" width="360">
+<p align="center">
+  <img src="photo.png" alt="Chess Helper preview" width="520">
+</p>
 
 ## Что умеет приложение
 
