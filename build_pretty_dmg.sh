@@ -23,7 +23,7 @@ cleanup() {
 trap cleanup EXIT
 
 if [[ ! -d "$APP_SRC" ]]; then
-  echo "Не найдено приложение: $APP_SRC" >&2
+  echo "Application not found: $APP_SRC" >&2
   exit 1
 fi
 
@@ -100,7 +100,7 @@ ATTACH_OUTPUT="$(hdiutil attach "$TMP_DMG" -readwrite -noverify -noautoopen)"
 DEVICE="$(awk '/^\/dev\// {print $1; exit}' <<< "$ATTACH_OUTPUT")"
 
 if [[ -z "$DEVICE" ]]; then
-  echo "Не удалось подключить временный DMG" >&2
+  echo "Failed to attach temporary DMG" >&2
   exit 1
 fi
 
@@ -144,4 +144,4 @@ DEVICE=""
 
 hdiutil convert "$TMP_DMG" -format UDZO -imagekey zlib-level=9 -ov -o "$OUT_DMG" >/dev/null
 
-echo "Готово: $OUT_DMG"
+echo "Done: $OUT_DMG"

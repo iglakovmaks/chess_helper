@@ -6,6 +6,9 @@ on:
     tags:
       - "v*"
 
+permissions:
+  contents: write
+
 jobs:
   build-windows:
     runs-on: windows-latest
@@ -80,12 +83,23 @@ jobs:
         run: |
           & "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" "ChessHelperInstaller.iss"
 
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: ChessHelper-windows
-          path: |
-            release/*.zip
-            release/*.exe
-            dist/ChessHelper/**
-          if-no-files-found: error
+      - name: Publish installer to GitHub Release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG_NAME: ${{ github.event_name == 'workflow_dispatch' && 'windows-latest' || github.ref_name }}
+          RELEASE_TITLE: ${{ github.event_name == 'workflow_dispatch' && 'ChessHelper Windows Latest' || format('ChessHelper {0}', github.ref_name) }}
+        run: |
+          $ErrorActionPreference = "Stop"
+
+          gh release view "$env:TAG_NAME" --repo "$env:GITHUB_REPOSITORY" 1>$null 2>$null
+          if ($LASTEXITCODE -ne 0) {
+            gh release create "$env:TAG_NAME" `
+              --repo "$env:GITHUB_REPOSITORY" `
+              --title "$env:RELEASE_TITLE" `
+              --notes "Automated Windows build."
+          }
+
+          gh release upload "$env:TAG_NAME" "release/ChessHelper-Setup.exe" `
+            --repo "$env:GITHUB_REPOSITORY" `
+            --clobber

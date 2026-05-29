@@ -1,0 +1,30 @@
+Chess Helper is a simple chess assistant app.
+
+# What this app does
+Chess Helper shows the best move suggestion for the current position using the Stockfish chess engine.
+The app does not play automatically - it helps you choose a stronger move.
+
+# What it is for
+- Quickly get a suggestion for the best move right now.
+- Analyze positions during a game or training session.
+- Review your games and validate your ideas more easily.
+
+# How to use (simple and fast)
+1. Launch the app.
+2. Select the side you play: use the "Play as Black" toggle if needed.
+3. Recreate real game moves on the board (both yours and your opponent's) by moving pieces.
+4. When it is your turn, a hint will appear automatically on the right.
+5. The board also shows an arrow for the recommended move.
+6. Make the move on your real board/site, then enter it in the app and continue.
+
+# Buttons
+- "New Game" - start from the initial position.
+- "Undo Move" - revert the last move.
+
+# Short usage scenario
+You play on one device, and on another device you open Chess Helper, repeat the moves, and get a suggestion for your next move.
+
+# Developer
+https://github.com/iglakovmaks
+
+THANK YOU FOR INSTALLING!

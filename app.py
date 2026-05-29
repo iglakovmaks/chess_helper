@@ -335,7 +335,7 @@ class RoundedHintCard(tk.Canvas):
         self.create_text(
             16,
             16,
-            text="ПОДСКАЗКА:",
+            text="HINT:",
             fill=COLOR_MILK,
             font=self._title_font,
             anchor="nw",
@@ -459,8 +459,8 @@ class ChessHelperApp:
         self.piece_font_size = int(self.square_size * 0.66)
 
         self.play_black_var = tk.BooleanVar(value=False)
-        self.engine_status_var = tk.StringVar(value="Подготовка приложения...")
-        self.hint_var = tk.StringVar(value="Движок запускается...")
+        self.engine_status_var = tk.StringVar(value="Preparing application...")
+        self.hint_var = tk.StringVar(value="Engine is starting...")
         self.moves_var = tk.StringVar(value="-")
 
         self.engine: Optional[chess.engine.SimpleEngine] = None
@@ -533,7 +533,7 @@ class ChessHelperApp:
         try:
             title_font = tkfont.Font(root=self.root, font=self._latin_font(self.title_font_size, "bold"))
             title_text_px = title_font.measure("Chess Helper")
-            # Учитываем внутренние отступы панели и небольшой запас, чтобы заголовок не обрезался на DPI 125%+.
+            # Account for panel padding and a small reserve so the title is not clipped on 125%+ DPI.
             needed_width = title_text_px + 46
             return max(base_width, needed_width)
         except Exception:
@@ -619,7 +619,7 @@ class ChessHelperApp:
         ttk.Label(side_panel, text="Chess Helper", style="Title.TLabel").pack(anchor=tk.W)
         credits_row = tk.Frame(side_panel, bg=COLOR_PANEL, bd=0)
         credits_row.pack(anchor=tk.W, pady=(2, 20))
-        ttk.Label(credits_row, text="Разработка ", style="Panel.TLabel").pack(side=tk.LEFT)
+        ttk.Label(credits_row, text="Developed by ", style="Panel.TLabel").pack(side=tk.LEFT)
         self.author_label = tk.Label(
             credits_row,
             text="iglakovmaks",
@@ -635,7 +635,7 @@ class ChessHelperApp:
 
         self.color_mode_switch = ColorModeSwitch(
             side_panel,
-            text="Играть за чёрных",
+            text="Play as Black",
             label_font=self._ru_font(18, "bold"),
             variable=self.play_black_var,
             command=self._on_color_toggle,
@@ -647,7 +647,7 @@ class ChessHelperApp:
 
         RoundedButton(
             button_panel,
-            text="Новая партия",
+            text="New Game",
             command=self._new_game,
             bg_color=COLOR_NAVY,
             hover_color="#4B5060",
@@ -659,7 +659,7 @@ class ChessHelperApp:
         ).pack(fill=tk.X, pady=(0, 10))
         RoundedButton(
             button_panel,
-            text="Отменить ход",
+            text="Undo Move",
             command=self._undo_move,
             bg_color=COLOR_NAVY,
             hover_color="#4B5060",
@@ -685,7 +685,7 @@ class ChessHelperApp:
         info_panel.pack(fill=tk.BOTH, expand=True)
 
         ttk.Label(info_panel, textvariable=self.engine_status_var, style="Status.TLabel").pack(anchor=tk.W)
-        ttk.Label(info_panel, text="Ходы:", style="Panel.TLabel").pack(anchor=tk.W, pady=(6, 0))
+        ttk.Label(info_panel, text="Moves:", style="Panel.TLabel").pack(anchor=tk.W, pady=(6, 0))
         self.moves_label = tk.Label(
             info_panel,
             textvariable=self.moves_var,
@@ -723,7 +723,7 @@ class ChessHelperApp:
             search_dirs.append(exe_dir.parent)
             search_dirs.append(exe_dir.parent.parent)
 
-            # Запуск из .app: ищем как внутри bundle, так и рядом (dist/ChessHelper).
+            # Running from .app: search both inside the bundle and next to it (dist/ChessHelper).
             if exe_dir.name == "MacOS":
                 contents_dir = exe_dir.parent
                 app_bundle_dir = contents_dir.parent
@@ -751,8 +751,8 @@ class ChessHelperApp:
                     return str(local_binary)
 
         raise FileNotFoundError(
-            "Stockfish не найден. Установите `stockfish` в PATH "
-            "или задайте переменную окружения STOCKFISH_PATH."
+            "Stockfish not found. Install `stockfish` in PATH "
+            "or set the STOCKFISH_PATH environment variable."
         )
 
     def _load_engine_async(self) -> None:
@@ -779,14 +779,14 @@ class ChessHelperApp:
             engine = chess.engine.SimpleEngine.popen_uci(engine_path, **popen_args)
             self._configure_engine(engine)
         except Exception:
-            self.root.after(0, lambda: self.engine_status_var.set("Не удалось запустить движок"))
-            self.root.after(0, lambda: self.hint_var.set("Проверьте установку Stockfish и попробуйте снова."))
+            self.root.after(0, lambda: self.engine_status_var.set("Could not start engine"))
+            self.root.after(0, lambda: self.hint_var.set("Check your Stockfish installation and try again."))
             return
 
         def finish() -> None:
             with self.engine_lock:
                 self.engine = engine
-            self.engine_status_var.set("Приложение готово к работе")
+            self.engine_status_var.set("Application is ready")
             self._refresh_hint_for_turn()
 
         self.root.after(0, finish)
@@ -836,7 +836,7 @@ class ChessHelperApp:
             if piece is None:
                 return
             if piece.color != self.board.turn:
-                self.hint_var.set("Сейчас ход другой стороны. Выберите фигуру, которой можно ходить.")
+                self.hint_var.set("It is the other side to move. Select a piece that can move.")
                 return
             self.selected_square = square
             self._draw_board()
@@ -929,7 +929,7 @@ class ChessHelperApp:
         ]
 
         if not candidates:
-            self.hint_var.set("Нелегальный ход для текущей позиции.")
+            self.hint_var.set("Illegal move for the current position.")
             self.selected_square = None
             self._draw_board()
             return
@@ -949,12 +949,12 @@ class ChessHelperApp:
         self._refresh_moves_text()
 
         if self.board.is_checkmate():
-            winner = "Белые" if self.board.turn == chess.BLACK else "Черные"
-            self.hint_var.set(f"Мат. Победили {winner}.")
+            winner = "White" if self.board.turn == chess.BLACK else "Black"
+            self.hint_var.set(f"Checkmate. {winner} wins.")
             return
 
         if self.board.is_stalemate() or self.board.is_insufficient_material():
-            self.hint_var.set("Ничья в текущей позиции.")
+            self.hint_var.set("Draw in the current position.")
             return
 
         self._refresh_hint_for_turn()
@@ -981,7 +981,7 @@ class ChessHelperApp:
         selected_piece: dict[str, Optional[chess.PieceType]] = {"piece": None}
 
         popup = tk.Toplevel(self.root)
-        popup.title("Превращение пешки")
+        popup.title("Pawn Promotion")
         popup.configure(bg=COLOR_PANEL)
         popup.resizable(False, False)
         popup.transient(self.root)
@@ -991,7 +991,7 @@ class ChessHelperApp:
 
         tk.Label(
             container,
-            text="Выберите фигуру для превращения",
+            text="Choose a piece for promotion",
             bg=COLOR_PANEL,
             fg=COLOR_NAVY,
             font=self._ru_font(14, "bold"),
@@ -1001,10 +1001,10 @@ class ChessHelperApp:
         options_frame.pack(pady=(12, 8))
 
         option_defs: list[tuple[chess.PieceType, str]] = [
-            (chess.QUEEN, "Ферзь"),
-            (chess.ROOK, "Ладья"),
-            (chess.BISHOP, "Слон"),
-            (chess.KNIGHT, "Конь"),
+            (chess.QUEEN, "Queen"),
+            (chess.ROOK, "Rook"),
+            (chess.BISHOP, "Bishop"),
+            (chess.KNIGHT, "Knight"),
         ]
 
         def choose(piece_type: chess.PieceType) -> None:
@@ -1057,7 +1057,7 @@ class ChessHelperApp:
         cancel_row.pack(fill=tk.X, pady=(4, 0))
         RoundedButton(
             cancel_row,
-            text="Отмена",
+            text="Cancel",
             command=popup.destroy,
             bg_color=COLOR_NAVY,
             hover_color="#4B5060",
@@ -1093,14 +1093,14 @@ class ChessHelperApp:
 
     def _suggest_move(self) -> None:
         if self.board.turn != self.my_color:
-            self.hint_var.set("Сейчас ход соперника. Сначала внесите его ход на доску.")
+            self.hint_var.set("It is your opponent's turn. Enter their move on the board first.")
             return
 
         with self.engine_lock:
             engine = self.engine
 
         if engine is None:
-            self.hint_var.set("Движок еще не готов.")
+            self.hint_var.set("Engine is not ready yet.")
             return
 
         self.analysis_request_id += 1
@@ -1108,7 +1108,7 @@ class ChessHelperApp:
         request_fen = self.board.fen()
         board_snapshot = self.board.copy(stack=False)
 
-        self.hint_var.set("Stockfish думает...")
+        self.hint_var.set("Stockfish is thinking...")
         worker = threading.Thread(
             target=self._analyze_position_worker,
             args=(request_id, request_fen, board_snapshot),
@@ -1121,17 +1121,17 @@ class ChessHelperApp:
             with self.engine_lock:
                 engine = self.engine
                 if engine is None:
-                    raise RuntimeError("Движок недоступен.")
+                    raise RuntimeError("Engine is unavailable.")
                 result = engine.play(board_snapshot, self.analysis_limit)
             move = result.move
             if move is None:
-                raise RuntimeError("Не удалось получить вариант.")
+                raise RuntimeError("Could not get a move.")
             line = self._format_move_hint(board_snapshot, move)
             move_uci = move.uci()
         except Exception as exc:
             self.root.after(
                 0,
-                lambda: self._apply_analysis(request_id, request_fen, None, None, f"Ошибка анализа: {exc}"),
+                lambda: self._apply_analysis(request_id, request_fen, None, None, f"Analysis error: {exc}"),
             )
             return
 
@@ -1170,41 +1170,41 @@ class ChessHelperApp:
     def _format_move_hint(self, board_snapshot: chess.Board, move: chess.Move) -> str:
         if board_snapshot.is_castling(move):
             if chess.square_file(move.to_square) > chess.square_file(move.from_square):
-                return "Короткая рокировка"
-            return "Длинная рокировка"
+                return "Kingside castling"
+            return "Queenside castling"
 
         piece = board_snapshot.piece_at(move.from_square)
         if piece is None:
-            return f"Ход на {chess.square_name(move.to_square)}"
+            return f"Move to {chess.square_name(move.to_square)}"
 
         names = {
-            chess.PAWN: "Пешка",
-            chess.KNIGHT: "Конь",
-            chess.BISHOP: "Слон",
-            chess.ROOK: "Ладья",
-            chess.QUEEN: "Ферзь",
-            chess.KING: "Король",
+            chess.PAWN: "Pawn",
+            chess.KNIGHT: "Knight",
+            chess.BISHOP: "Bishop",
+            chess.ROOK: "Rook",
+            chess.QUEEN: "Queen",
+            chess.KING: "King",
         }
-        piece_name = names.get(piece.piece_type, "Фигура")
+        piece_name = names.get(piece.piece_type, "Piece")
         target_square = chess.square_name(move.to_square)
 
         if move.promotion:
             promotion_names = {
-                chess.QUEEN: "ферзя",
-                chess.ROOK: "ладью",
-                chess.BISHOP: "слона",
-                chess.KNIGHT: "коня",
+                chess.QUEEN: "Queen",
+                chess.ROOK: "Rook",
+                chess.BISHOP: "Bishop",
+                chess.KNIGHT: "Knight",
             }
-            promoted_to = promotion_names.get(move.promotion, "фигуру")
-            return f"{piece_name} на {target_square} с превращением в {promoted_to}"
+            promoted_to = promotion_names.get(move.promotion, "piece")
+            return f"{piece_name} to {target_square} promoting to {promoted_to}"
 
-        return f"{piece_name} на {target_square}"
+        return f"{piece_name} to {target_square}"
 
     def _refresh_hint_for_turn(self) -> None:
         if self.board.turn != self.my_color:
             self.suggested_move = None
             self._draw_board()
-            self.hint_var.set("Сейчас ход соперника.\nВведите его ход на доске.")
+            self.hint_var.set("It is your opponent's turn.\nEnter their move on the board.")
             return
 
         with self.engine_lock:
@@ -1213,7 +1213,7 @@ class ChessHelperApp:
         if not engine_ready:
             self.suggested_move = None
             self._draw_board()
-            self.hint_var.set("Ваш ход. Движок пока запускается.")
+            self.hint_var.set("Your turn. Engine is still starting.")
             return
 
         self._suggest_move()
@@ -1305,7 +1305,7 @@ class ChessHelperApp:
         if dist < 1e-6:
             return
 
-        # Уводим начало/конец стрелки от центров клеток, чтобы не перекрывать фигуры.
+        # Shift arrow start/end away from square centers to avoid covering pieces.
         start_offset = self.square_size * 0.30
         end_offset = self.square_size * 0.20
         ux = dx / dist

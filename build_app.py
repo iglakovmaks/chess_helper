@@ -35,7 +35,7 @@ def find_stockfish(explicit_path: str | None) -> Path:
         candidate = Path(explicit_path).expanduser().resolve()
         if candidate.exists():
             return candidate
-        raise FileNotFoundError(f"Stockfish не найден по пути: {candidate}")
+        raise FileNotFoundError(f"Stockfish not found at path: {candidate}")
 
     env_path = os.environ.get("STOCKFISH_PATH")
     if env_path:
@@ -49,8 +49,8 @@ def find_stockfish(explicit_path: str | None) -> Path:
             return Path(from_path).resolve()
 
     raise FileNotFoundError(
-        "Stockfish не найден. Установите stockfish в PATH, "
-        "или передайте --stockfish, или задайте STOCKFISH_PATH."
+        "Stockfish not found. Install stockfish in PATH, "
+        "or pass --stockfish, or set STOCKFISH_PATH."
     )
 
 
@@ -68,7 +68,7 @@ def resolve_bundle_targets(dist_dir: Path) -> list[Path]:
         return targets
 
     raise FileNotFoundError(
-        f"Не найден результат сборки в {dist_dir}. Ожидался {app_dir} или {app_bundle}."
+        f"Build output not found in {dist_dir}. Expected {app_dir} or {app_bundle}."
     )
 
 
@@ -76,7 +76,7 @@ def resolve_icon_source(root: Path, explicit_icon: str | None) -> Path | None:
     if explicit_icon:
         icon_path = Path(explicit_icon).expanduser().resolve()
         if not icon_path.exists():
-            raise FileNotFoundError(f"Иконка не найдена: {icon_path}")
+            raise FileNotFoundError(f"Icon not found: {icon_path}")
         return icon_path
 
     default_icon = root / "icon.png"
@@ -94,10 +94,10 @@ def prepare_icon_for_platform(root: Path, icon_source: Path) -> Path:
         if suffix == ".icns":
             return icon_source
         if suffix != ".png":
-            raise ValueError("Для macOS используйте .png или .icns")
+            raise ValueError("For macOS, use .png or .icns")
 
         if not shutil.which("sips") or not shutil.which("iconutil"):
-            raise RuntimeError("Для конвертации иконки на macOS нужны утилиты sips и iconutil")
+            raise RuntimeError("Icon conversion on macOS requires sips and iconutil")
 
         temp_root = root / ".icon_build"
         iconset_dir = temp_root / "AppIcon.iconset"
@@ -155,8 +155,8 @@ def prepare_icon_for_platform(root: Path, icon_source: Path) -> Path:
                 from PIL import Image
             except Exception as exc:
                 raise ValueError(
-                    "Для Windows нужен .ico. Установите Pillow (`python -m pip install pillow`) "
-                    "или передайте --icon с .ico файлом."
+                    "Windows needs a .ico icon. Install Pillow (`python -m pip install pillow`) "
+                    "or pass --icon with a .ico file."
                 ) from exc
 
             temp_root = root / ".icon_build"
@@ -169,9 +169,9 @@ def prepare_icon_for_platform(root: Path, icon_source: Path) -> Path:
                     sizes=[(16, 16), (24, 24), (32, 32), (48, 48), (64, 64), (128, 128), (256, 256)],
                 )
             return ico_path
-        raise ValueError("Для Windows используйте .ico или .png (автоконвертация в .ico).")
+        raise ValueError("For Windows, use .ico or .png (auto-converted to .ico).")
 
-    # На Linux PyInstaller использует переданный путь как есть.
+    # On Linux, PyInstaller uses the provided path as-is.
     return icon_source
 
 
@@ -201,24 +201,24 @@ def zip_dist(target_path: Path, release_dir: Path) -> Path:
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Собрать ChessHelper как desktop-приложение (PyInstaller)"
+        description="Build ChessHelper as a desktop app (PyInstaller)"
     )
     parser.add_argument(
         "--stockfish",
         type=str,
         default=None,
-        help="Путь к бинарнику Stockfish (если не указан, ищется в STOCKFISH_PATH/PATH)",
+        help="Path to Stockfish binary (if not set, looked up in STOCKFISH_PATH/PATH)",
     )
     parser.add_argument(
         "--icon",
         type=str,
         default=None,
-        help="Путь к иконке приложения. Если не указать, будет использован icon.png (если есть).",
+        help="Path to app icon. If omitted, icon.png is used (if present).",
     )
     parser.add_argument(
         "--no-zip",
         action="store_true",
-        help="Не упаковывать сборку в zip-архив",
+        help="Do not package the build into a zip archive",
     )
     return parser.parse_args()
 
@@ -237,9 +237,9 @@ def main() -> None:
     print(f"Stockfish: {stockfish_src}")
     if icon_source is not None:
         icon_path = prepare_icon_for_platform(root, icon_source)
-        print(f"Иконка: {icon_path}")
+        print(f"Icon: {icon_path}")
     else:
-        print("Иконка: не задана (сборка без custom icon)")
+        print("Icon: not set (building without custom icon)")
 
     for path in (dist_dir, build_dir):
         if path.exists():
@@ -255,7 +255,7 @@ def main() -> None:
     )
     if pyinstaller_check.returncode != 0:
         raise RuntimeError(
-            "PyInstaller не найден в текущем Python. Установите: python -m pip install pyinstaller"
+            "PyInstaller was not found in the current Python. Install it with: python -m pip install pyinstaller"
         )
 
     cmd = [
@@ -276,7 +276,7 @@ def main() -> None:
     if font_file.exists():
         data_sep = ";" if platform.system().lower().startswith("win") else ":"
         cmd.extend(["--add-data", f"{font_file}{data_sep}."])
-        print(f"Добавлен шрифт: {font_file.name}")
+        print(f"Added font: {font_file.name}")
 
     run(cmd, cwd=root)
 
@@ -294,7 +294,7 @@ def main() -> None:
 
         copied_paths.append(stockfish_dst)
 
-    print("Скопирован движок:")
+    print("Engine copied to:")
     for dst in copied_paths:
         print(f"  - {dst}")
 
@@ -303,10 +303,10 @@ def main() -> None:
         app_dir = dist_dir / APP_NAME
         package_root = app_bundle if app_bundle.exists() else app_dir
         archive_path = zip_dist(package_root, root / "release")
-        print(f"Готов архив: {archive_path}")
+        print(f"Archive ready: {archive_path}")
 
-    print("Сборка завершена.")
-    print(f"Результат: {dist_dir}")
+    print("Build completed.")
+    print(f"Output: {dist_dir}")
 
 
 if __name__ == "__main__":

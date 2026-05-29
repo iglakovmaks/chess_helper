@@ -9,6 +9,7 @@ Russian version: [README_RU.md](README_RU.md)
 - Project website: **https://iglakovmaks.github.io/chess_helper_site/**
 - macOS: `ChessHelper.dmg`
 - Windows: `ChessHelper-Setup.exe`
+- Windows direct link: `https://github.com/iglakovmaks/chess_helper/releases/latest/download/ChessHelper-Setup.exe`
 
 <p align="center">
   <img src="photo.png" alt="Chess Helper preview" width="520">
@@ -76,7 +77,8 @@ powershell -ExecutionPolicy Bypass -File .\build_windows.ps1 -NoZip
 This repository includes workflow: `.github/workflows/build-windows.yml`.
 
 - Run: **Actions -> Build Windows Release -> Run workflow**
-- Result: artifact `ChessHelper-windows`
+- Result: `ChessHelper-Setup.exe` is uploaded to GitHub Release tag `windows-latest`.
+- Stable download URL: `https://github.com/iglakovmaks/chess_helper/releases/latest/download/ChessHelper-Setup.exe`
 
 ## Repository Structure
 

@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-REPO="iglakovmaks/chess_helper_archive_20260413"
-WORKFLOW_NAME="Build Windows Release"
-ARTIFACT_NAME="ChessHelper-windows"
+REPO="iglakovmaks/chess_helper"
+RELEASE_TAG="windows-latest"
+ASSET_NAME="ChessHelper-Setup.exe"
 TARGET_SETUP="website/downloads/ChessHelper-Setup.exe"
 
 if ! command -v gh >/dev/null 2>&1; then
@@ -11,35 +11,17 @@ if ! command -v gh >/dev/null 2>&1; then
   exit 1
 fi
 
-RUN_ID="${1:-}"
-if [[ -z "${RUN_ID}" ]]; then
-  RUN_ID=$(gh run list \
-    --repo "${REPO}" \
-    --workflow "${WORKFLOW_NAME}" \
-    --limit 20 \
-    --json databaseId,status,conclusion \
-    --jq '.[] | select(.status=="completed" and .conclusion=="success") | .databaseId' \
-    | head -n 1)
-fi
-
-if [[ -z "${RUN_ID}" ]]; then
-  echo "No successful runs found for workflow '${WORKFLOW_NAME}'" >&2
-  exit 1
-fi
-
-echo "Using run: ${RUN_ID}"
-
 TMP_DIR=$(mktemp -d)
 trap 'rm -rf "${TMP_DIR}"' EXIT
 
-gh run download "${RUN_ID}" \
+gh release download "${RELEASE_TAG}" \
   --repo "${REPO}" \
-  -n "${ARTIFACT_NAME}" \
+  -p "${ASSET_NAME}" \
   -D "${TMP_DIR}"
 
-SRC_SETUP=$(find "${TMP_DIR}" -type f -name "ChessHelper-Setup.exe" | head -n 1)
+SRC_SETUP=$(find "${TMP_DIR}" -type f -name "${ASSET_NAME}" | head -n 1)
 if [[ -z "${SRC_SETUP}" ]]; then
-  echo "ChessHelper-Setup.exe not found inside artifact" >&2
+  echo "${ASSET_NAME} not found in release '${RELEASE_TAG}'" >&2
   exit 1
 fi
 
