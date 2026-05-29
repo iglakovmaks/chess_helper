@@ -9,8 +9,6 @@ Russian version: [README_RU.md](README_RU.md)
 - Project website: **https://iglakovmaks.github.io/chess_helper_site/**
 - macOS: `ChessHelper.dmg`
 - Windows: `ChessHelper-Setup.exe`
-- macOS direct link: `https://github.com/iglakovmaks/chess_helper/releases/download/windows-latest/ChessHelper.dmg`
-- Windows direct link: `https://github.com/iglakovmaks/chess_helper/releases/download/windows-latest/ChessHelper-Setup.exe`
 
 <p align="center">
   <img src="photo.png" alt="Chess Helper preview" width="520">
